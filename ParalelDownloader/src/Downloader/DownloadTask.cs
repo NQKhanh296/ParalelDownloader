@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ParalelDownloader.src.Downloader
+﻿namespace ParalelDownloader.src.Downloader
 {
+    /// <summary>
+    /// Reprezentuje jeden úkol ke stažení:
+    ///  - URL zdroje
+    ///  - absolutní cestu výsledného souboru
+    /// </summary>
     public class DownloadTask
     {
         public string Url { get; }
-        public string FileName { get; }
+        public string OutputPath { get; }
 
-        public DownloadTask(string url, string fileName)
+        public DownloadTask(string url, string outputPath)
         {
             Url = url;
-            FileName = fileName;
+            OutputPath = outputPath;
         }
     }
 }
