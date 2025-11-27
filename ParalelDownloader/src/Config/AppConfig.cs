@@ -8,5 +8,13 @@ namespace ParalelDownloader.src.Config
 {
     internal class AppConfig
     {
+        public int WorkerCount { get; set; } = 3;
+
+        public string[] UrlsToDownload { get; set; } = new[]
+        {
+            "https://speed.hetzner.de/100MB.bin",
+            "https://speed.hetzner.de/50MB.bin",
+            "https://speed.hetzner.de/10MB.bin"
+        };
     }
 }
