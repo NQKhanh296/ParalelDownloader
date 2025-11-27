@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="src\Downloader\" />
+    <Folder Include="src\Config\" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,4 @@
-﻿namespace ParalelDownloader
+﻿namespace ParalelDownloader.src
 {
     internal class Program
     {
