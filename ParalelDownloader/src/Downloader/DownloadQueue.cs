@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ParalelDownloader.src.Downloader
 {
-    internal class DownloadQueue
+    public class DownloadQueue
     {
         private readonly ConcurrentQueue<DownloadTask> _queue = new ConcurrentQueue<DownloadTask>();
 
