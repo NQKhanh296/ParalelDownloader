@@ -1,17 +1,16 @@
 ﻿using ParalelDownloader.src.Downloader;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ParalelDownloader.src.Core
 {
+    /// <summary>
+    /// Implementace návrhového vzoru Factory Method.
+    /// Slouží k vytváření objektů DownloadWorker
+    /// </summary>
     public class WorkerFactory
     {
-        public DownloadWorker CreateWorker(int id, DownloadQueue queue, SemaphoreSlim semaphore)
+        public DownloadWorker CreateWorker(int id, DownloadQueue queue, SemaphoreSlim semaphore, string outputFolder)
         {
-            return new DownloadWorker(id, queue, semaphore);
+            return new DownloadWorker(id, queue, semaphore, outputFolder);
         }
     }
 }
