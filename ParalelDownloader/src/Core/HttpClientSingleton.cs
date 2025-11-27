@@ -8,13 +8,24 @@ namespace ParalelDownloader.src.Core
 {
     public sealed class HttpClientSingleton
     {
-        // Jedna statická instance pro celou aplikaci (vytvořena při startu programu)
-        private static readonly HttpClient _instance = new HttpClient();
+        private static readonly HttpClient _instance = CreateClient();
 
-        // Veřejná vlastnost pro přístup
         public static HttpClient Instance => _instance;
 
-        // Soukromý konstruktor zabrání vytvoření instancí
         private HttpClientSingleton() { }
+
+        private static HttpClient CreateClient()
+        {
+            var client = new HttpClient();
+
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+                "AppleWebKit/537.36 (KHTML, like Gecko) " +
+                "Chrome/120.0.0.0 Safari/537.36"
+            );
+
+            return client;
+        }
+
     }
 }

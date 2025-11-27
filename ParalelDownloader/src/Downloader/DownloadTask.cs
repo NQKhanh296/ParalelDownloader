@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ParalelDownloader.src.Downloader
 {
-    internal class DownloadTask
+    public class DownloadTask
     {
         public string Url { get; }
         public string FileName { get; }

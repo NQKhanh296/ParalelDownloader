@@ -6,15 +6,22 @@ using System.Threading.Tasks;
 
 namespace ParalelDownloader.src.Config
 {
-    internal class AppConfig
+    public class AppConfig
     {
-        public int WorkerCount { get; set; } = 3;
-
         public string[] UrlsToDownload { get; set; } = new[]
         {
-            "https://speed.hetzner.de/100MB.bin",
-            "https://speed.hetzner.de/50MB.bin",
-            "https://speed.hetzner.de/10MB.bin"
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Cat_November_2010-1a.jpg/500px-Cat_November_2010-1a.jpg",
         };
+
+        /// <summary>
+        /// Vrátí počet workerů dle počtu CPU jader a počtu URL.
+        /// </summary>
+        public int CalculateOptimalWorkers()
+        {
+            int cpuCores = Environment.ProcessorCount;
+            int urlCount = UrlsToDownload.Length;
+
+            return Math.Min(cpuCores, urlCount);
+        }
     }
 }

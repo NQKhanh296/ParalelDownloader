@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ParalelDownloader.src.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,12 +7,11 @@ using System.Threading.Tasks;
 
 namespace ParalelDownloader.src.Downloader
 {
-    internal class DownloadWorker
+    public class DownloadWorker
     {
+        private readonly int _id;
         private readonly DownloadQueue _queue;
         private readonly SemaphoreSlim _semaphore;
-        private readonly HttpClient _client = new HttpClient();
-        private readonly int _id;
 
         public DownloadWorker(int id, DownloadQueue queue, SemaphoreSlim semaphore)
         {
@@ -21,49 +21,44 @@ namespace ParalelDownloader.src.Downloader
         }
 
         /// <summary>
-        /// Startuje nekonečnou smyčku, dokud jsou úkoly k dispozici.
+        /// Hlavní smyčka workeru (konzumenta).
+        /// Worker pracuje, dokud nejsou všechny úkoly pryč.
         /// </summary>
         public async Task StartAsync()
         {
             while (true)
             {
-                // Pokusíme se získat "povolení" ke stažení dalšího souboru.
-                // SemaphoreSlim omezuje počet aktivních workerů.
+                // Povolí vstup do kritické sekce max. podle počtu jader
                 await _semaphore.WaitAsync();
 
                 try
                 {
-                    // Zkusíme získat úkol z queue
-                    if (_queue.TryDequeue(out var task))
+                    // Zkus si vzít úkol
+                    if (!_queue.TryDequeue(out DownloadTask task))
                     {
-                        Console.WriteLine($"[Worker {_id}] Stahuji: {task.Url}");
-
-                        try
-                        {
-                            // Stáhneme soubor z internetu do bajtů
-                            byte[] data = await _client.GetByteArrayAsync(task.Url);
-
-                            // Zapíšeme soubor do disku
-                            await File.WriteAllBytesAsync(task.FileName, data);
-
-                            Console.WriteLine($"[Worker {_id}] Dokončeno: {task.FileName}");
-                        }
-                        catch (Exception ex)
-                        {
-                            // Ošetření případné chyby stahování
-                            Console.WriteLine($"[Worker {_id}] Chyba při stahování: {ex.Message}");
-                        }
-                    }
-                    else
-                    {
-                        // Pokud není co stahovat, worker končí
-                        Console.WriteLine($"[Worker {_id}] Nejsou další úkoly. Končím.");
+                        // Už není co dělat → worker končí
                         return;
+                    }
+
+                    Console.WriteLine($"[Worker {_id}] Stahuji: {task.Url}");
+
+                    try
+                    {
+                        // Singleton HttpClient
+                        var data = await HttpClientSingleton.Instance.GetByteArrayAsync(task.Url);
+
+                        await File.WriteAllBytesAsync(task.FileName, data);
+
+                        Console.WriteLine($"[Worker {_id}] Dokončeno: {task.FileName}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[Worker {_id}] CHYBA: {ex.Message}");
                     }
                 }
                 finally
                 {
-                    // Vždy uvolníme semafor
+                    // Worker se uvolnil a hned může pracovat dál
                     _semaphore.Release();
                 }
             }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ParalelDownloader.src.Downloader
 {
-    internal class TaskProducer
+    public class TaskProducer
     {
         private readonly DownloadQueue _queue;
 
