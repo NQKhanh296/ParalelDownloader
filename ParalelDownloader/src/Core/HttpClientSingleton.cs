@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ParalelDownloader.src.Core
+﻿namespace ParalelDownloader.src.Core
 {
+    /// <summary>
+    /// Provides a thread-safe, globally accessible singleton instance of HttpClient.
+    /// </summary>
+
     public sealed class HttpClientSingleton
     {
         private static readonly HttpClient _instance = CreateClient();
