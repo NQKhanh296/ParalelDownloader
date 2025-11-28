@@ -10,10 +10,8 @@ namespace ParalelDownloader.src.Downloader
     /// </summary>
     public class TaskProducer
     {
-        // Sdílená fronta
         private readonly DownloadQueue _queue;
 
-        // Složka, do které se budou stahovat soubory
         private readonly string _outputFolder;
 
         /// <summary>
@@ -44,20 +42,15 @@ namespace ParalelDownloader.src.Downloader
                 if (string.IsNullOrWhiteSpace(url))
                     continue; 
 
-                // Pokusí se z URL získat příponu
                 string extension = Path.GetExtension(url);
 
-                // Pokud URL žádnou příponu nemá, použije .bin
                 if (string.IsNullOrEmpty(extension))
                     extension = ".bin";
 
-                // Název souboru
                 string fileName = $"soubor_{index}{extension}";
 
-                // Kompletní cesta: složka + název souboru
                 string fullPath = Path.Combine(_outputFolder, fileName);
 
-                // Nový úkol pro stažení
                 var task = new DownloadTask(url, fullPath);
                 _queue.Enqueue(task);
 

@@ -9,16 +9,9 @@ namespace ParalelDownloader.src.Downloader
     /// </summary>
     public class DownloadWorker
     {
-        // Identifikační číslo workeru 
         private readonly int _id;
-
-        // Sdílená fronta úkolů 
         private readonly DownloadQueue _queue;
-
-        // Semafor omezuje počet současně běžících workerů
         private readonly SemaphoreSlim _semaphore;
-
-        // Složka, kam worker ukládá stažené soubory
         private readonly string _outputFolder;
 
         /// <summary>
@@ -45,12 +38,10 @@ namespace ParalelDownloader.src.Downloader
         {
             while (true)
             {
-                // Čekání, dokud není volná kapacita (thread pool limit)
                 await _semaphore.WaitAsync();
 
                 try
                 {
-                    // Pokus o získání dalšího úkolu
                     if (!_queue.TryDequeue(out var task))
                         return; 
 
@@ -58,19 +49,15 @@ namespace ParalelDownloader.src.Downloader
 
                     try
                     {
-                        // Stahování souboru 
                         byte[] data = await HttpClientSingleton.Instance.GetByteArrayAsync(task.Url);
 
-                        // Uložení souboru — pouze při úspěšném stažení
                         await File.WriteAllBytesAsync(task.OutputPath, data);
                         Console.WriteLine($"[Worker {_id}] Dokončeno: {task.OutputPath}");
 
-                        // Zaznamenání úspěšného stažení
                         DownloadStatistics.IncrementSuccess();
                     }
                     catch (Exception ex)
                     {
-                        // Chytání chyb během stahování nebo ukládání
                         Console.WriteLine($"[Worker {_id}] CHYBA u URL: {task.Url}");
                         Console.WriteLine($"[Worker {_id}] Detail: {ex.Message}");
                         Console.WriteLine($"[Worker {_id}] Soubor nebude uložen.");
@@ -78,7 +65,6 @@ namespace ParalelDownloader.src.Downloader
                 }
                 finally
                 {
-                    // Worker uvolní místo v semaforu
                     _semaphore.Release();
                 }
             }

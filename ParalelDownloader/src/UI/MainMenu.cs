@@ -72,7 +72,6 @@ namespace ParalelDownloader.src.UI
             if (string.IsNullOrWhiteSpace(urlInput))
                 return;
 
-            // Převod na pole URL
             string[] urls = urlInput.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
             if (urls.Length == 0)
@@ -82,7 +81,6 @@ namespace ParalelDownloader.src.UI
                 return;
             }
 
-            // Ověření možnosti zápisu do cílové složky
             if (!PathConfig.CanWriteToFolder(_currentOutputFolder, out var error))
             {
                 Console.WriteLine($"Chybná složka: {_currentOutputFolder}");
@@ -110,7 +108,6 @@ namespace ParalelDownloader.src.UI
             var factory = new WorkerFactory();
             var workerTasks = new List<Task>();
 
-            // Vytvoření workerů
             for (int i = 1; i <= workerCount; i++)
             {
                 var worker = factory.CreateWorker(i, queue, semaphore, _currentOutputFolder);

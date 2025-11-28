@@ -9,7 +9,6 @@
     /// </summary>
     public class PathConfig
     {
-        // Cesta ke konfiguračnímu textovému souboru (uložené nastavení)
         private static string ConfigFilePath =>
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "download_path.txt");
 
