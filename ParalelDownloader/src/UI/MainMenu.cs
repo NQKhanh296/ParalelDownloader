@@ -11,7 +11,6 @@ namespace ParalelDownloader.src.UI
     /// </summary>
     public class MainMenu
     {
-        // Aktuální složka, kam se ukládají soubory
         private string _currentOutputFolder;
 
         /// <summary>
