@@ -20,12 +20,9 @@ Aplikace automaticky zvolí počet paralelních vláken podle počtu procesorov�
 - Zobrazení výsledné statistiky
 
 ## Jak spustit projekt
-1. Ve složce **/output** najděte soubor:
-
-   **ParalelDownloader.exe**
-2. Stahujte si tento soubor
+1. Stahujte si složku /output
+2. Rozbalte složku a spusťte .exe soubor dvojklikem
 3. Spusťte ho dvojklikem.
-
 4. V konzoli si vyberte akci:
    - stahovat URL
    - změnit složku
