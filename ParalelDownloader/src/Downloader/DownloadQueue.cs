@@ -3,33 +3,36 @@
 namespace ParalelDownloader.src.Downloader
 {
     /// <summary>
-    /// DownloadQueue je vlákny bezpečná fronta (ConcurrentQueue)
-    /// pro ukládání úkolů ke stažení.
-    /// Workeři z ní úkoly odebírají bez nutnosti zamykání (lock).
+    /// A thread-safe download task queue implemented using ConcurrentQueue.
+    /// Workers retrieve tasks from this queue without requiring explicit locking.
     /// </summary>
     public class DownloadQueue
     {
         private readonly ConcurrentQueue<DownloadTask> _queue = new();
 
         /// <summary>
-        /// Přidá úkol do fronty.
+        /// Adds a download task to the queue.
         /// </summary>
+        /// <param name="task">The task to enqueue.</param>
         public void Enqueue(DownloadTask task)
         {
             _queue.Enqueue(task);
         }
 
         /// <summary>
-        /// Pokusí se odebrat úkol z fronty.
+        /// Attempts to remove a task from the queue.
         /// </summary>
+        /// <param name="task">The dequeued task, if available.</param>
+        /// <returns>True if a task was successfully dequeued; otherwise false.</returns>
         public bool TryDequeue(out DownloadTask task)
         {
             return _queue.TryDequeue(out task);
         }
 
         /// <summary>
-        /// Vrací true, pokud je fronta prázdná.
+        /// Indicates whether the queue is empty.
         /// </summary>
+        /// <returns>True if the queue contains no tasks; otherwise false.</returns>
         public bool IsEmpty => _queue.IsEmpty;
     }
 }

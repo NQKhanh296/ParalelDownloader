@@ -6,38 +6,35 @@ using ParalelDownloader.src.Downloader;
 namespace ParalelDownloader.src.UI
 {
     /// <summary>
-    /// MainMenu zajišťuje konzolové uživatelské rozhraní programu.
-    /// Obsahuje hlavní menu, volby uživatele, správu cílové složky
+    /// Provides the console-based user interface of the application.
+    /// Handles the main menu, user input, and management of the target download folder.
     /// </summary>
     public class MainMenu
     {
         private string _currentOutputFolder;
 
-        /// <summary>
-        /// Konstruktor načte uloženou složku ze souboru konfigurace
-        /// nebo použije výchozí (Downloads), pokud žádná není uložená.
-        /// </summary>
         public MainMenu()
         {
             _currentOutputFolder = PathConfig.LoadSavedFolderOrDefault();
         }
 
         /// <summary>
-        /// Hlavní smyčka menu.
+        /// Runs the main menu loop, displaying options and processing user choices.
         /// </summary>
+        /// <returns>A task representing the asynchronous menu loop.</returns>
         public async Task RunAsync()
         {
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("===== PARALLEL DOWNLOAD MANAGER =====");
-                Console.WriteLine($"Cílová složka: {_currentOutputFolder}");
+                Console.WriteLine("===== PARALLEL DOWNLOADER =====");
+                Console.WriteLine($"Target folder: {_currentOutputFolder}");
                 Console.WriteLine();
-                Console.WriteLine("1) Stahovat soubory z URL");
-                Console.WriteLine("2) Změnit cílovou složku");
-                Console.WriteLine("3) Ukončit program");
+                Console.WriteLine("1) Download files from URL");
+                Console.WriteLine("2) Change target folder");
+                Console.WriteLine("3) Exit program");
                 Console.WriteLine();
-                Console.Write("Vyberte (1-3): ");
+                Console.Write("Choose (1–3): ");
 
                 string? choice = Console.ReadLine();
 
@@ -47,7 +44,7 @@ namespace ParalelDownloader.src.UI
                     case "2": HandleChangeFolder(); break;
                     case "3": return;
                     default:
-                        Console.WriteLine("Neplatná volba.");
+                        Console.WriteLine("Invalid choice.");
                         Console.ReadKey(true);
                         break;
                 }
@@ -55,17 +52,22 @@ namespace ParalelDownloader.src.UI
         }
 
         /// <summary>
-        /// Obsluha stahování.
+        /// Handles the download workflow:
+        /// - Prompts the user for URLs
+        /// - Validates input
+        /// - Configures worker count
+        /// - Produces download tasks and launches workers
+        /// - Displays results after completion
         /// </summary>
         private async Task HandleDownloadAsync()
         {
             Console.Clear();
-            Console.WriteLine("=== STAHOVÁNÍ SOUBORŮ ===");
-            Console.WriteLine($"Cílová složka: {_currentOutputFolder}");
-            Console.WriteLine("(ENTER = zpět)");
+            Console.WriteLine("=== FILE DOWNLOAD ===");
+            Console.WriteLine($"Target folder: {_currentOutputFolder}");
+            Console.WriteLine("(ENTER = back)");
             Console.WriteLine();
 
-            Console.Write("Zadejte URL oddělené čárkou: ");
+            Console.Write("Enter URLs separated by commas: ");
             string? urlInput = Console.ReadLine();
 
             if (string.IsNullOrWhiteSpace(urlInput))
@@ -73,17 +75,18 @@ namespace ParalelDownloader.src.UI
 
             string[] urls = urlInput.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
+
             if (urls.Length == 0)
             {
-                Console.WriteLine("Nebyla zadána žádná platná URL.");
+                Console.WriteLine("No valid URLs were entered.");
                 Console.ReadKey(true);
                 return;
             }
 
             if (!PathConfig.CanWriteToFolder(_currentOutputFolder, out var error))
             {
-                Console.WriteLine($"Chybná složka: {_currentOutputFolder}");
-                Console.WriteLine($"Chyba: {error}");
+                Console.WriteLine($"Invalid folder: {_currentOutputFolder}");
+                Console.WriteLine($"Error: {error}");
                 Console.ReadKey(true);
                 return;
             }
@@ -92,9 +95,9 @@ namespace ParalelDownloader.src.UI
             int workerCount = config.CalculateOptimalWorkers(urls.Length);
 
             Console.WriteLine();
-            Console.WriteLine($"CPU jader: {Environment.ProcessorCount}");
-            Console.WriteLine($"Počet URL: {urls.Length}");
-            Console.WriteLine($"Workerů v thread poolu: {workerCount}");
+            Console.WriteLine($"CPU cores: {Environment.ProcessorCount}");
+            Console.WriteLine($"Number of URLs: {urls.Length}");
+            Console.WriteLine($"Workers in thread pool: {workerCount}");
             Console.WriteLine();
 
             DownloadStatistics.Reset();
@@ -116,13 +119,14 @@ namespace ParalelDownloader.src.UI
             await Task.WhenAll(workerTasks);
 
             Console.WriteLine();
-            Console.WriteLine($"Úspěšně staženo: {DownloadStatistics.SuccessCount} z {urls.Length}");
-            Console.WriteLine("Stiskněte libovolnou klávesu...");
+            Console.WriteLine($"Successfully downloaded: {DownloadStatistics.SuccessCount} z {urls.Length}");
+            Console.WriteLine("Press any key...");
             Console.ReadKey(true);
         }
 
         /// <summary>
-        /// Obsluha změny cílové složky.
+        /// Handles changing the download output folder.
+        /// Allows the user to specify a new folder or reset to the default Downloads directory.
         /// </summary>
         private void HandleChangeFolder()
         {
@@ -132,21 +136,21 @@ namespace ParalelDownloader.src.UI
 
                 string defaultFolder = PathConfig.GetDefaultFolder();
 
-                Console.WriteLine("=== ZMĚNA CÍLOVÉ SLOŽKY ===");
-                Console.WriteLine($"Současná složka: {_currentOutputFolder}");
+                Console.WriteLine("=== CHANGE TARGET FOLDER ===");
+                Console.WriteLine($"Current folder: {_currentOutputFolder}");
                 Console.WriteLine();
-                Console.WriteLine("1) Zadat novou složku");
-                Console.WriteLine("2) Reset na výchozí (Downloads)");
-                Console.WriteLine("3) Zpět do menu");
+                Console.WriteLine("1) Enter new folder");
+                Console.WriteLine("2) Reset to default (Downloads)");
+                Console.WriteLine("3) Back to menu");
                 Console.WriteLine();
-                Console.Write("Vyberte (1-3): ");
+                Console.Write("Choose (1-3): ");
 
                 string? choice = Console.ReadLine();
 
                 switch (choice)
                 {
                     case "1":
-                        Console.Write("Zadejte cestu (ENTER = zpět): ");
+                        Console.Write("Enter path (ENTER = back): ");
                         string? newPath = Console.ReadLine();
 
                         if (string.IsNullOrWhiteSpace(newPath))
@@ -154,14 +158,14 @@ namespace ParalelDownloader.src.UI
 
                         if (!PathConfig.TrySaveFolder(newPath, out var error))
                         {
-                            Console.WriteLine($"Chyba: {error}");
-                            Console.WriteLine("Stiskněte klávesu...");
+                            Console.WriteLine($"Error: {error}");
+                            Console.WriteLine("Press any key...");
                             Console.ReadKey(true);
                         }
                         else
                         {
                             _currentOutputFolder = newPath;
-                            Console.WriteLine("Cílová složka byla změněna.");
+                            Console.WriteLine("Target folder has been changed.");
                             Console.ReadKey(true);
                         }
                         break;
@@ -170,11 +174,11 @@ namespace ParalelDownloader.src.UI
                         if (PathConfig.TrySaveFolder(defaultFolder, out var err))
                         {
                             _currentOutputFolder = defaultFolder;
-                            Console.WriteLine("Složka resetována na výchozí.");
+                            Console.WriteLine("Folder reset to default.");
                         }
                         else
                         {
-                            Console.WriteLine($"Chyba: {err}");
+                            Console.WriteLine($"Error: {err}");
                         }
                         Console.ReadKey(true);
                         break;
@@ -183,7 +187,7 @@ namespace ParalelDownloader.src.UI
                         return;
 
                     default:
-                        Console.WriteLine("Neplatná volba.");
+                        Console.WriteLine("Invalid choice.");
                         Console.ReadKey(true);
                         break;
                 }

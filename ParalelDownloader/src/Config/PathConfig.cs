@@ -1,11 +1,9 @@
 ﻿namespace ParalelDownloader.src.Config
 {
     /// <summary>
-    /// PathConfig spravuje výběr cílové složky pro ukládání stažených souborů.
-    /// - Načítá uloženou složku ze souboru download_path.txt.
-    /// - Validuje, že složka existuje a lze do ní zapisovat.
-    /// - Umožňuje uložit novou složku do konfigurace.
-    /// - V případě chyby používá výchozí systémovou složku "Downloads".
+    /// Manages the selection and validation of the target folder used for saving downloaded files.
+    /// Loads the path from a configuration file, verifies write access, and falls back to the
+    /// system "Downloads" directory when necessary.
     /// </summary>
     public class PathConfig
     {
@@ -13,8 +11,9 @@
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "download_path.txt");
 
         /// <summary>
-        /// Vrátí výchozí složku: uživatelův systémový "Downloads".
+        /// Returns the system default download directory for the current user.
         /// </summary>
+        /// <returns>The path to the user's default Downloads folder.</returns>
         public static string GetDefaultFolder()
         {
             return Path.Combine(
@@ -24,10 +23,11 @@
         }
 
         /// <summary>
-        /// Načte uloženou složku, nebo defaultní.
-        /// Ověřuje i možnost zápisu — pokud nelze zapisovat,
-        /// vrátí se defaultní složka.
+        /// Loads the saved folder path from the configuration file.
+        /// If the folder does not exist or is not writable, the default directory is used instead.
+        /// Ensures the final folder exists by creating it if necessary.
         /// </summary>
+        /// <returns>A valid directory path for storing downloaded files.</returns>
         public static string LoadSavedFolderOrDefault()
         {
             string folder = GetDefaultFolder();
@@ -41,9 +41,9 @@
                         folder = saved;
                 }
             }
-            catch
+            catch(Exception ex)
             {
-                
+                Console.WriteLine($"[PathConfig] Failed to read config file: {ex.Message}, returned to default folder");
             }
 
             if (!CanWriteToFolder(folder, out _))
@@ -55,22 +55,25 @@
         }
 
         /// <summary>
-        /// Zkusí uložit danou složku jako výchozí uložiště.
-        /// Před uložením ověřuje možnost zápisu.
+        /// Attempts to save the specified folder path to the configuration file.
+        /// Validates that the path is absolute, exists, and is writable before saving.
         /// </summary>
+        /// <param name="folder">The folder path to store.</param>
+        /// <param name="error">An error message if validation fails.</param>
+        /// <returns>True if the folder was successfully saved; otherwise false.</returns>
         public static bool TrySaveFolder(string folder, out string error)
         {
             error = null;
 
             if (!Path.IsPathRooted(folder))
             {
-                error = "Cesta musí být absolutní (např. C:\\Users\\Honza\\Documents).";
+                error = "The path must be absolute (e.g., C:\\Users\\Honza\\Documents).";
                 return false;
             }
 
             if (!Directory.Exists(folder))
             {
-                error = "Zadaná složka neexistuje. Vytvořte ji ručně mimo program.";
+                error = "The specified folder does not exist. Please create it manually outside the program.";
                 return false;
             }
 
@@ -86,15 +89,18 @@
             }
             catch (Exception ex)
             {
-                error = "Chyba při ukládání konfigurace: " + ex.Message;
+                error = "Error while saving configuration: " + ex.Message;
                 return false;
             }
         }
 
         /// <summary>
-        /// Ověří, zda lze do dané složky zapisovat.
-        /// Zkusí vytvořit a ihned smazat testovací soubor.
+        /// Checks whether the application has write permission for the specified folder.
+        /// Creates and deletes a temporary file to verify access.
         /// </summary>
+        /// <param name="folder">The folder path to validate.</param>
+        /// <param name="error">Contains an error message if the check fails.</param>
+        /// <returns>True if writing is possible; otherwise false.</returns>
         public static bool CanWriteToFolder(string folder, out string error)
         {
             try

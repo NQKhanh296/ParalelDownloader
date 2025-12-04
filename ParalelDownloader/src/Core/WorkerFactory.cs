@@ -3,8 +3,8 @@
 namespace ParalelDownloader.src.Core
 {
     /// <summary>
-    /// Implementace návrhového vzoru Factory Method.
-    /// Slouží k vytváření objektů DownloadWorker
+    /// Implements the Factory Method design pattern.
+    /// Responsible for creating instances of DownloadWorker.
     /// </summary>
     public class WorkerFactory
     {
