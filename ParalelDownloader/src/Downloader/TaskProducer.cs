@@ -4,9 +4,9 @@ using System.IO;
 namespace ParalelDownloader.src.Downloader
 {
     /// <summary>
-    /// TaskProducer je PRODUCENT v modelu Producer–Consumer.
-    /// Jeho úkolem je převést seznam URL od uživatele na jednotlivé úkoly (DownloadTask)
-    /// a vložit je do sdílené fronty pro download worker vlákna.
+    /// Represents the PRODUCER in the Producer–Consumer model.
+    /// Its responsibility is to transform the list of user-provided URLs
+    /// into individual DownloadTask objects and enqueue them for worker threads.
     /// </summary>
     public class TaskProducer
     {
@@ -14,9 +14,6 @@ namespace ParalelDownloader.src.Downloader
 
         private readonly string _outputFolder;
 
-        /// <summary>
-        /// Konstruktor producenta
-        /// </summary>
         public TaskProducer(DownloadQueue queue, string outputFolder)
         {
             _queue = queue;
@@ -24,17 +21,16 @@ namespace ParalelDownloader.src.Downloader
         }
 
         /// <summary>
-        /// Zpracuje všechna URL:
-        /// 1) Normalizuje je
-        /// 2) Zjistí příponu z URL
-        /// 3) Vytvoří název souboru
-        /// 4) Vygeneruje kompletní výstupní cestu
-        /// 5) Vloží úkol do fronty pro paralelní stažení
+        /// Processes all provided URLs by:
+        /// 1) Normalizing the URL.
+        /// 2) Determining the file extension.
+        /// 3) Generating a unique file name.
+        /// 4) Constructing the full output path.
+        /// 5) Enqueuing a DownloadTask for parallel processing.
         /// </summary>
+        /// <param name="urls">Array of URLs entered by the user.</param>
         public void ProduceTasks(string[] urls)
         {
-            int index = 1; 
-
             foreach (var rawUrl in urls)
             {
                 string url = rawUrl.Trim();
@@ -47,17 +43,22 @@ namespace ParalelDownloader.src.Downloader
                 if (string.IsNullOrEmpty(extension))
                     extension = ".bin";
 
-                string fileName = $"soubor_{index}{extension}";
+                string fileName = $"soubor_{GenerateGuidFileName()}{extension}";
 
                 string fullPath = Path.Combine(_outputFolder, fileName);
 
                 var task = new DownloadTask(url, fullPath);
                 _queue.Enqueue(task);
-
-                Console.WriteLine($"[PRODUCENT] Přidán úkol: {url} → {fullPath}");
-
-                index++; 
             }
+        }
+
+        /// <summary>
+        /// Generates a unique file name using a GUID.
+        /// </summary>
+        /// <returns>A unique file name string.</returns>
+        private string GenerateGuidFileName()
+        {
+            return Guid.NewGuid().ToString();
         }
     }
 }
