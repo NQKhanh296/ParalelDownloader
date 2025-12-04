@@ -1,4 +1,5 @@
 ﻿using ParalelDownloader.src.UI;
+
 namespace ParalelDownloader.src
 {
     internal class Program
