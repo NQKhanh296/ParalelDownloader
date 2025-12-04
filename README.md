@@ -9,6 +9,7 @@ Aplikace automaticky zvolí počet paralelních vláken podle počtu procesorov�
   - Singleton (`HttpClientSingleton`)
   - Factory Method (`WorkerFactory`)
   - Producer–Consumer (`TaskProducer` + `DownloadWorker`)
+  - Thread Pool (`AppConfig`)
 - Ukládání konfigurované cílové složky do textového souboru
 - Validace cesty (musí být existující a zapisovatelná)
 - Uživatelské menu:
